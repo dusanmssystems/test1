@@ -1,0 +1,43 @@
+- name: "FIX: Ubuntu 16.04 LTS doesn't come with certain modules, required by ansible"
+  raw: apt-get install python-minimal aptitude -y
+
+- name: Ensure that MariaDB is installed
+  apt: 
+    name: ['mariadb-server', 'python-mysqldb']
+    state: present  
+
+- name: Ensure that MariaDB is started and enabled
+  service: name=mariadb state=started enabled=yes
+
+- name: Set root password for MySQL
+  mysql_user: 
+    name: root
+    password: root
+    state: present
+
+# - name: Upload the .my.cnf file to save the credentials
+#   copy: 
+#     src: my.cnf
+#     dest: /root/.my.cnf
+#     owner: root 
+#     mode: 0600
+
+- name: Remove anonymous accounts
+  mysql_user: 
+    name: ''
+    host_all: yes
+    state: absent
+
+- name: Create database 
+  mysql_db: 
+    name: naziv_baze
+    state: present
+
+- name: Create database user 
+  mysql_user: 
+    name: nameofuser
+    password: user_pass
+    host: '%'
+    priv: naziv_baze.*:ALL
+    state: present               
+

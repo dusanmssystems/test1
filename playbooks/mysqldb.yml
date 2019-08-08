@@ -1,0 +1,8 @@
+- name: Tomcat deployment playbook
+  hosts: db
+  become: yes
+  become_method: sudo
+  remote_user: db
+  roles:
+    - database
+

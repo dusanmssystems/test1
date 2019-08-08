@@ -1,0 +1,106 @@
+# - name: "APT: Install aptitude package"
+#   apt:
+#     name: aptitude
+#     force_apt_get: yes
+
+- name: "FIX: Ubuntu 16.04 LTS doesn't come with certain modules, required by ansible"
+  raw: apt-get install python-minimal aptitude -y
+
+- name: Ensure the system can use the HTTPS transport for APT.
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: Install APT HTTPS transport.
+  apt:
+    name: "apt-transport-https"
+    state: present
+    update_cache: yes
+  when: not apt_https_transport.stat.exists
+
+- name: Install basic packages
+  package:
+    name: wget
+    state: present
+    update_cache: yes
+
+- name: "Installing java 8"
+  apt: name=openjdk-8-jdk state=present 
+     
+# - name: "Creating user tomcat"
+#   shell: sudo /usr/sbin/useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
+
+- name: Add tomcat group
+  group:
+    name: tomcat
+
+- name: Add "tomcat" user
+  user:
+    name: tomcat
+    group: tomcat
+    home: /opt/tomcat
+    createhome: no
+    system: yes
+
+# - name: "Download and Unarchive apache-tomcat-9.0.22.tar.gz"
+#   unarchive:
+#     src: https://www-eu.apache.org/dist/tomcat/tomcat-9/v9.0.22/bin/apache-tomcat-9.0.22.tar.gz
+#     dest: /opt/tomcat
+#     remote_source: yes
+
+- name: Download Tomcat
+  get_url:
+    url: "{{ tomcat_archive_url }}"
+    dest: "{{ tomcat_archive_dest }}"
+
+- name: Create a tomcat directory
+  file:
+    path: /opt/tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat   
+
+- name: Extract tomcat archive
+  unarchive:
+    src: "{{ tomcat_archive_dest }}"
+    dest: /opt/tomcat
+    owner: tomcat
+    group: tomcat
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+    creates: /opt/tomcat/bin     
+
+- name: "Adding +x to the scripts in ./bin"
+  shell: chmod +x /opt/tomcat/bin/*.sh
+
+- name: Copy tomcat service file
+  template:
+    src: templates/tomcat.service.j2
+    dest: /etc/systemd/system/tomcat.service
+  when: ansible_service_mgr == "systemd" 
+
+- name: Start and enable tomcat
+  service:
+    daemon_reload: yes
+    name: tomcat
+    state: started
+    enabled: yes
+  when: ansible_service_mgr == "systemd"  
+
+- name: "Changing ownership of the file to tomcat:tomcat"
+  shell: chown -R tomcat:tomcat /opt/tomcat  
+
+- name: "Add group+read permission to conf file"
+  shell: chmod -R g+r /opt/tomcat/conf
+
+- name: "Add group write persmission to files"
+  shell: chmod -R g+w /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/webapps /opt/tomcat/work
+
+- name: "Activate the sticky-bit for new files keep permissions defined"
+  shell: chmod -R g+s /opt/tomcat/conf /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/webapps /opt/tomcat/work
+
+
+
+
+   
+  

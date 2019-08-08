@@ -1,0 +1,8 @@
+---
+- name: Tomcat deployment playbook
+  hosts: websrv
+  become: yes
+  become_method: sudo
+  remote_user: dusan
+  roles:
+    - webserver
