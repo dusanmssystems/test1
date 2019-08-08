@@ -1,6 +1,6 @@
 ---
 - name: Server preparation for ansible
-  hosts: ansible_preparation
+  hosts: server_name
   become: yes
   gather_facts: no
   roles: 
