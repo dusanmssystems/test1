@@ -33,7 +33,6 @@
   notify:
     - restart ssh
     
-- name: reboot the machine with all defaults
-  reboot:    
+
 
 
