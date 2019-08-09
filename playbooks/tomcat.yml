@@ -3,6 +3,6 @@
   hosts: websrv
   become: yes
   become_method: sudo
-  remote_user: dusan
+  remote_user: devops
   roles:
     - webserver
