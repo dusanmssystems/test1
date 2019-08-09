@@ -1,4 +1,5 @@
 [webservers]
+newsrv ansible_host=10.0.0.24  ansible_user=devops ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
 webserver ansible_user=devops ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
 websrv ansible_host=10.0.0.22  ansible_user=devops ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
 
