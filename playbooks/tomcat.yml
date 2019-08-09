@@ -1,6 +1,6 @@
 ---
 - name: Tomcat deployment playbook
-  hosts: websrv
+  hosts: server_name
   become: yes
   become_method: sudo
   remote_user: devops
